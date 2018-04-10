@@ -468,28 +468,30 @@ void CMassSpringSystem::HandleCollision()
 
 void CMassSpringSystem::NetPlaneCollision()
 {
-    //TO DO 2 BUG
-    static const double eEPSILON = 0.01;
+    //TO DO 2 
+	static const double eEPSILON = 0.01 * 8; // magic function
     double resistCoef = 0.5;
     double frictionCoef = 0.3;
 
 	Vector3d planeNormal = Vector3d(0, 1, 0);
 	Vector3d p = Vector3d(0, -1, 0);
 
+
 	for (int i = 0; i < m_GoalNet.ParticleNum(); i++)
 	{
-		if (planeNormal.DotProduct((m_GoalNet.GetParticle(i).GetPosition() - p).NormalizedCopy()) < eEPSILON && planeNormal.DotProduct(m_GoalNet.GetParticle(i).GetVelocity().NormalizedCopy()) < eEPSILON && planeNormal.DotProduct(m_GoalNet.GetParticle(i).GetForce().NormalizedCopy()) < 0)
+		if (planeNormal.DotProduct((m_GoalNet.GetParticle(i).GetPosition() - p)) < eEPSILON && planeNormal.DotProduct(m_GoalNet.GetParticle(i).GetVelocity()) < eEPSILON && planeNormal.DotProduct(m_GoalNet.GetParticle(i).GetForce()) < 0)
 		{
 			//cout << 456 << endl;
 			//cout << (planeNormal.DotProduct(m_Balls[i].GetVelocity().NormalizedCopy())) << endl;
 			Vector3d vt = Vector3d(m_GoalNet.GetParticle(i).GetVelocity().x, 0, m_GoalNet.GetParticle(i).GetVelocity().z);
-			//m_Balls[i].AddForce(-planeNormal.DotProduct(m_GoalNet.GetParticle(i).GetForce())*planeNormal);
-			//m_Balls[i].AddForce(-frictionCoef*-planeNormal.DotProduct(m_GoalNet.GetParticle(i).GetForce().NormalizedCopy())*vt);
+			m_GoalNet.GetParticle(i).AddForce(-planeNormal.DotProduct(m_GoalNet.GetParticle(i).GetForce())*planeNormal);
+			m_GoalNet.GetParticle(i).AddForce(-frictionCoef*-planeNormal.DotProduct(m_GoalNet.GetParticle(i).GetForce())*vt);
 		}
 
-		if (planeNormal.DotProduct((m_GoalNet.GetParticle(i).GetPosition() - p).NormalizedCopy()) < eEPSILON && planeNormal.DotProduct(m_GoalNet.GetParticle(i).GetVelocity().NormalizedCopy()) < 0)
+		if (planeNormal.DotProduct((m_GoalNet.GetParticle(i).GetPosition() - p)) < eEPSILON && planeNormal.DotProduct(m_GoalNet.GetParticle(i).GetVelocity()) < 0)
 		{
 			m_GoalNet.GetParticle(i).SetVelocity(Vector3d(m_GoalNet.GetParticle(i).GetVelocity().x, -m_GoalNet.GetParticle(i).GetVelocity().y*resistCoef, m_GoalNet.GetParticle(i).GetVelocity().z));
+			//cout << "123" << endl;
 		}
 	}
    
@@ -498,7 +500,7 @@ void CMassSpringSystem::NetPlaneCollision()
 void CMassSpringSystem::BallPlaneCollision()
 {
     //TO DO 2
-    static const double eEPSILON = 0.01;
+    static const double eEPSILON = 0.01 * 5; // magic function
     double resistCoef = 0.5;
     double frictionCoef = 0.3;
    
@@ -509,17 +511,18 @@ void CMassSpringSystem::BallPlaneCollision()
 	{
 		
 		//cout << abs(planeNormal.DotProduct(m_Balls[i].GetVelocity()))<<endl;
-
-		if (planeNormal.DotProduct((m_Balls[i].GetPosition() - p).NormalizedCopy()) < eEPSILON && planeNormal.DotProduct(m_Balls[i].GetVelocity().NormalizedCopy()) < eEPSILON && planeNormal.DotProduct(m_Balls[i].GetForce().NormalizedCopy()) < 0)
+			// N dot x-p																					  // N dot v																		  // N dot f
+		if (planeNormal.DotProduct((m_Balls[i].GetPosition() - p)) < eEPSILON + m_Balls[i].GetRadius() && planeNormal.DotProduct(m_Balls[i].GetVelocity()) < eEPSILON + m_Balls[i].GetRadius() && planeNormal.DotProduct(m_Balls[i].GetForce()) < 0) // contact force and friction
 		{
 			//cout << 456 << endl;
+			//cout << planeNormal.DotProduct((m_Balls[i].GetPosition() - p).NormalizedCopy()) << endl;
 			//cout << (planeNormal.DotProduct(m_Balls[i].GetVelocity().NormalizedCopy())) << endl;
 			Vector3d vt = Vector3d(m_Balls[i].GetVelocity().x, 0, m_Balls[i].GetVelocity().z);
 			m_Balls[i].AddForce(-planeNormal.DotProduct(m_Balls[i].GetForce())*planeNormal);
-			m_Balls[i].AddForce(-frictionCoef*-planeNormal.DotProduct(m_Balls[i].GetForce().NormalizedCopy())*vt);
+			m_Balls[i].AddForce(-frictionCoef*-planeNormal.DotProduct(m_Balls[i].GetForce())*vt);
 		}
-		
-		if (planeNormal.DotProduct((m_Balls[i].GetPosition() - p).NormalizedCopy()) < eEPSILON && planeNormal.DotProduct(m_Balls[i].GetVelocity().NormalizedCopy()) < 0)
+			// N dot x-p																				  // N dot v
+		if (planeNormal.DotProduct((m_Balls[i].GetPosition() - p)) < eEPSILON + m_Balls[i].GetRadius() && planeNormal.DotProduct(m_Balls[i].GetVelocity()) < 0) // collision response
 		{
 			m_Balls[i].SetVelocity(Vector3d(m_Balls[i].GetVelocity().x, -m_Balls[i].GetVelocity().y*resistCoef, m_Balls[i].GetVelocity().z));
 			//cout << 123 << endl;
@@ -534,43 +537,168 @@ void CMassSpringSystem::BallPlaneCollision()
 
 void CMassSpringSystem::BallToBallCollision()
 {
-    static const double eEPSILON = 0.01;
+	static const double eEPSILON = 0.01 * 2; // magic function
 	//TO DO 2
+
+	for (int i = 0; i < BallNum(); i++)
+	{		// it don't need detect twice
+		for (int j = i + 1; j < BallNum(); j++)
+		{
+			if ((m_Balls[i].GetPosition() - m_Balls[j].GetPosition()).Length() <= m_Balls[i].GetRadius() + m_Balls[j].GetRadius() + eEPSILON)
+			{
+				double cos1 = m_Balls[i].GetVelocity().DotProduct(m_Balls[j].GetPosition() - m_Balls[i].GetPosition())
+					/ (m_Balls[i].GetVelocity().Length()*(m_Balls[j].GetPosition() - m_Balls[i].GetPosition()).Length());
+
+				Vector3d v1n = (m_Balls[j].GetPosition() - m_Balls[i].GetPosition()).NormalizedCopy()
+					* m_Balls[i].GetVelocity().Length()*cos1;
+
+				Vector3d v1t = m_Balls[i].GetVelocity() - v1n;
+
+				double cos2 = m_Balls[j].GetVelocity().DotProduct(m_Balls[i].GetPosition() - m_Balls[j].GetPosition())
+					/ (m_Balls[j].GetVelocity().Length()*(m_Balls[i].GetPosition() - m_Balls[j].GetPosition()).Length());
+
+				Vector3d v2n = (m_Balls[i].GetPosition() - m_Balls[j].GetPosition()).NormalizedCopy()
+					* m_Balls[j].GetVelocity().Length()*cos2;
+
+				Vector3d v2t = m_Balls[j].GetVelocity() - v2n;
+
+
+				Vector3d v1 = (v1n*(m_Balls[i].GetMass() - m_Balls[j].GetMass())
+					+ 2 * m_Balls[j].GetMass()*v2n)
+					/ (m_Balls[i].GetMass() + m_Balls[j].GetMass())
+					+ v1t;
+
+
+				Vector3d v2 = (v2n*(m_Balls[j].GetMass() - m_Balls[i].GetMass())
+					+ 2 * m_Balls[i].GetMass()*v1n)
+					/ (m_Balls[i].GetMass() + m_Balls[j].GetMass())
+					+ v2t;
+
+				if (cos1 > 0 && cos2 > 0)
+				{
+					m_Balls[i].SetVelocity(v1);
+					m_Balls[j].SetVelocity(v2);
+				}
+				else if (cos1 < 0 && cos2 > 0)
+				{
+					if (v2n.Length() > v1n.Length())
+					{
+						m_Balls[i].SetVelocity(v1);
+						m_Balls[j].SetVelocity(v2);
+					}
+				}
+				else if (cos1 > 0 && cos2 < 0)
+				{
+					if (v1n.Length() > v2n.Length())
+					{
+						m_Balls[i].SetVelocity(v1);
+						m_Balls[j].SetVelocity(v2);
+					}
+				}
+
+				
+					
+
+				
+
+				//cout << "123" << endl;
+			}
+
+		}
+	}
+
 }
 
 void CMassSpringSystem::BallNetCollision()
 {
-    static const double eEPSILON = 0.01;
+	static const double eEPSILON = 0.01 * 15; // magic function
 	//TO DO 2 BUG
+
+	double resistCoef = 0.5;
 
 	for (int i = 0; i < m_GoalNet.ParticleNum(); i++)
 	{
 		for (int j = 0; j < BallNum(); j++)
 		{
-			if ((m_GoalNet.GetParticle(i).GetPosition() - m_Balls[j].GetPosition()).Length() < m_Balls[j].GetRadius() + 1.5)
+			if ((m_GoalNet.GetParticle(i).GetPosition() - m_Balls[j].GetPosition()).Length() <= m_Balls[j].GetRadius() + eEPSILON && m_GoalNet.GetParticle(i).IsMovable()) // net
+			{
+				double cos1 = m_GoalNet.GetParticle(i).GetVelocity().DotProduct(m_Balls[j].GetPosition() - m_GoalNet.GetParticle(i).GetPosition())
+					/ (m_GoalNet.GetParticle(i).GetVelocity().Length()*(m_Balls[j].GetPosition() - m_GoalNet.GetParticle(i).GetPosition()).Length());
+
+				Vector3d v1n = (m_Balls[j].GetPosition() - m_GoalNet.GetParticle(i).GetPosition()).NormalizedCopy() 
+					* m_GoalNet.GetParticle(i).GetVelocity().Length()*cos1;
+
+				Vector3d v1t = m_GoalNet.GetParticle(i).GetVelocity() - v1n;
+
+				double cos2 = m_Balls[j].GetVelocity().DotProduct(m_GoalNet.GetParticle(i).GetPosition() - m_Balls[j].GetPosition())
+					/ (m_Balls[j].GetVelocity().Length()*(m_GoalNet.GetParticle(i).GetPosition() - m_Balls[j].GetPosition()).Length());
+
+				Vector3d v2n = (m_GoalNet.GetParticle(i).GetPosition() - m_Balls[j].GetPosition()).NormalizedCopy()
+					* m_Balls[j].GetVelocity().Length()*cos2;
+
+				Vector3d v2t = m_Balls[j].GetVelocity() - v2n;
+
+				
+				Vector3d v1 = (v1n*(m_GoalNet.GetParticle(i).GetMass() - m_Balls[j].GetMass())
+					+ 2 * m_Balls[j].GetMass()*v2n)
+					/ (m_GoalNet.GetParticle(i).GetMass() + m_Balls[j].GetMass())
+					+ v1t;
+
+				
+				Vector3d v2 = (v2n*(m_Balls[j].GetMass() - m_GoalNet.GetParticle(i).GetMass())
+					+ 2 * m_GoalNet.GetParticle(i).GetMass()*v1n)
+					/ (m_GoalNet.GetParticle(i).GetMass() + m_Balls[j].GetMass())
+					+ v2t;
+
+
+				if (cos1 > 0 && cos2 > 0)
+				{
+					m_GoalNet.GetParticle(i).SetVelocity(v1);
+					m_Balls[j].SetVelocity(v2);
+				}
+				else if (cos1 < 0 && cos2 > 0)
+				{
+					if (v2n.Length() > v1n.Length())
+					{
+						m_GoalNet.GetParticle(i).SetVelocity(v1);
+						m_Balls[j].SetVelocity(v2);
+					}
+				}
+				else if (cos1 > 0 && cos2 < 0)
+				{
+					if (v1n.Length() > v2n.Length())
+					{
+						m_GoalNet.GetParticle(i).SetVelocity(v1);
+						m_Balls[j].SetVelocity(v2);
+					}
+				}
+
+
+			}
+
+			if ((m_GoalNet.GetParticle(i).GetPosition() - m_Balls[j].GetPosition()).Length() <= m_Balls[j].GetRadius() && !m_GoalNet.GetParticle(i).IsMovable()) // railing
 			{
 				
-				Vector3d v1 = (m_GoalNet.GetParticle(i).GetVelocity()
-					*(m_GoalNet.GetParticle(i).GetMass() - m_Balls[j].GetMass())
-					+ 2 * m_Balls[j].GetMass()*m_Balls[j].GetVelocity())
-					/ (m_GoalNet.GetParticle(i).GetMass() + m_Balls[j].GetMass()) 
-					+ m_GoalNet.GetParticle(i).GetVelocity();
+				double cos2 = m_Balls[j].GetVelocity().DotProduct(m_GoalNet.GetParticle(i).GetPosition() - m_Balls[j].GetPosition())
+					/ (m_Balls[j].GetVelocity().Length()*(m_GoalNet.GetParticle(i).GetPosition() - m_Balls[j].GetPosition()).Length());
 
-				
-				Vector3d v2 = (m_Balls[j].GetVelocity()
-					*(m_Balls[j].GetMass()*m_GoalNet.GetParticle(i).GetMass())
-					+ 2 * m_GoalNet.GetParticle(i).GetMass()*m_GoalNet.GetParticle(i).GetVelocity())
-					/ (m_GoalNet.GetParticle(i).GetMass() + m_Balls[j].GetMass()) 
-					+ m_Balls[j].GetVelocity();
+				Vector3d v2n = (m_GoalNet.GetParticle(i).GetPosition() - m_Balls[j].GetPosition()).NormalizedCopy()
+					* m_Balls[j].GetVelocity().Length()*cos2;
 
-				m_GoalNet.GetParticle(i).SetVelocity(v1);
-				m_Balls[j].SetVelocity(v2);
+				Vector3d v2t = m_Balls[j].GetVelocity() - v2n;
+
+				if (cos2 > 0)
+				{
+					m_Balls[j].SetVelocity(v2t - v2n*resistCoef);
+				}
 				
-				
+
+				//cout << "123" << endl;
 			}
 			
 		}
 	}
+	
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -606,17 +734,20 @@ void CMassSpringSystem::ExplicitEuler()
 {
 	double timestep = 0.001;
 
+
     // Goal Net
 	for (int pIdx = 0; pIdx < m_GoalNet.ParticleNum(); ++pIdx)
 	{
 		//TO DO 6 BUG
 
+		//cout << m_GoalNet.GetParticle(pIdx).GetVelocity() << endl;
+
 		Vector3d acceleration = m_GoalNet.GetParticle(pIdx).GetForce() / m_GoalNet.GetParticle(pIdx).GetMass();
 
 
-		m_GoalNet.GetParticle(pIdx).AddVelocity(acceleration*timestep);
+		m_GoalNet.GetParticle(pIdx).AddVelocity(acceleration*g_cdDeltaT);
 
-		m_GoalNet.GetParticle(pIdx).AddPosition(m_GoalNet.GetParticle(pIdx).GetVelocity()*timestep + acceleration*timestep*timestep / 2);
+		m_GoalNet.GetParticle(pIdx).AddPosition(m_GoalNet.GetParticle(pIdx).GetVelocity()*g_cdDeltaT + acceleration*g_cdDeltaT*g_cdDeltaT / 2);
 		//cout << m_GoalNet.GetParticle(pIdx).GetForce();
 	}
 
@@ -627,9 +758,9 @@ void CMassSpringSystem::ExplicitEuler()
 
 		Vector3d acceleration = m_Balls[ballIdx].GetForce() / m_Balls[ballIdx].GetMass();
 
-		m_Balls[ballIdx].AddVelocity(acceleration*timestep);
+		m_Balls[ballIdx].AddVelocity(acceleration*g_cdDeltaT);
 		
-		m_Balls[ballIdx].AddPosition(m_Balls[ballIdx].GetVelocity()*timestep + acceleration*timestep*timestep / 2);
+		m_Balls[ballIdx].AddPosition(m_Balls[ballIdx].GetVelocity()*g_cdDeltaT + acceleration*g_cdDeltaT*g_cdDeltaT / 2);
 
 		
 		//cout << m_Balls[ballIdx].GetVelocity();
@@ -639,6 +770,7 @@ void CMassSpringSystem::ExplicitEuler()
 void CMassSpringSystem::RungeKutta()
 {
     //TO DO 7
+	//HandleCollision();
     BallNetCollision();
     BallToBallCollision();
     ParticleRungeKutta();
@@ -657,8 +789,107 @@ void CMassSpringSystem::ParticleRungeKutta()
     //container to store k1~k4 for each particles
     vector<Vector3d> curPosCntr, curVelCntr;
     vector<StateStep> k1StepCntr, k2StepCntr, k3StepCntr, k4StepCntr;
-    
-   
+
+	StateStep temp;
+	Vector3d tempForce;
+	Vector3d tempAcc;
+
+	NetPlaneCollision(); // it will change initial velocity
+
+	
+	for (int i = 0; i < m_GoalNet.ParticleNum(); i++)
+	{
+		curPosCntr.push_back(m_GoalNet.GetParticle(i).GetPosition());
+		curVelCntr.push_back(m_GoalNet.GetParticle(i).GetVelocity());
+	}
+
+	
+	for (int i = 0; i < m_GoalNet.ParticleNum(); i++)
+	{
+
+		temp.deltaVel = curVelCntr[i];
+		temp.deltaPos = temp.deltaVel*g_cdDeltaT;
+
+		k1StepCntr.push_back(temp);
+
+		m_GoalNet.GetParticle(i).SetPosition(curPosCntr[i] + k1StepCntr[i].deltaPos*0.5);
+
+		m_GoalNet.GetParticle(i).SetForce(Vector3d::ZERO);
+	}
+
+	ComputeParticleForce();
+	NetPlaneCollision();
+
+	for (int i = 0; i < m_GoalNet.ParticleNum(); i++)
+	{
+		tempForce = m_GoalNet.GetParticle(i).GetForce();
+		tempAcc = tempForce / m_GoalNet.GetParticle(i).GetMass();
+
+		temp.deltaVel = curVelCntr[i] + tempAcc*g_cdDeltaT*0.5;
+		temp.deltaPos = temp.deltaVel*g_cdDeltaT;
+
+		k2StepCntr.push_back(temp);
+
+
+		m_GoalNet.GetParticle(i).SetPosition(curPosCntr[i] + k2StepCntr[i].deltaPos*0.5);
+
+		m_GoalNet.GetParticle(i).SetForce(Vector3d::ZERO);
+	}
+
+	ComputeParticleForce();
+	NetPlaneCollision();
+
+	
+	for (int i = 0; i < m_GoalNet.ParticleNum(); i++)
+	{
+		tempForce = m_GoalNet.GetParticle(i).GetForce();
+		tempAcc = tempForce / m_GoalNet.GetParticle(i).GetMass();
+
+		temp.deltaVel = curVelCntr[i] + tempAcc*g_cdDeltaT*0.5;
+		temp.deltaPos = temp.deltaVel*g_cdDeltaT;
+
+		k3StepCntr.push_back(temp);
+	
+		m_GoalNet.GetParticle(i).SetPosition(curPosCntr[i] + k3StepCntr[i].deltaPos);
+
+		m_GoalNet.GetParticle(i).SetForce(Vector3d::ZERO);
+	}
+
+	ComputeParticleForce();
+	NetPlaneCollision();
+	
+	for (int i = 0; i < m_GoalNet.ParticleNum(); i++)
+	{
+		tempForce = m_GoalNet.GetParticle(i).GetForce();
+		tempAcc = tempForce / m_GoalNet.GetParticle(i).GetMass();
+
+		temp.deltaVel = curVelCntr[i] + tempAcc*g_cdDeltaT;
+		temp.deltaPos = temp.deltaVel*g_cdDeltaT;
+
+		k4StepCntr.push_back(temp);
+
+		curPosCntr[i] = curPosCntr[i] + (k1StepCntr[i].deltaPos + 2 * k2StepCntr[i].deltaPos + 2 * k3StepCntr[i].deltaPos + k4StepCntr[i].deltaPos) / 6;
+
+		m_GoalNet.GetParticle(i).SetPosition(curPosCntr[i]);
+
+		m_GoalNet.GetParticle(i).SetForce(Vector3d::ZERO);
+	}
+
+	ComputeParticleForce();
+	NetPlaneCollision();
+
+	for (int i = 0; i < m_GoalNet.ParticleNum(); i++)
+	{
+		tempForce = m_GoalNet.GetParticle(i).GetForce();
+		tempAcc = tempForce / m_GoalNet.GetParticle(i).GetMass();
+
+		curVelCntr[i] = curVelCntr[i] + tempAcc*g_cdDeltaT;
+
+		m_GoalNet.GetParticle(i).SetVelocity(curVelCntr[i]);
+
+		m_GoalNet.GetParticle(i).SetForce(Vector3d::ZERO);
+	}
+	
 }
 
 void CMassSpringSystem::BallRungeKutta()
@@ -673,6 +904,105 @@ void CMassSpringSystem::BallRungeKutta()
     //container to store k1~k4 for each particles
     vector<Vector3d> curPosCntr, curVelCntr;
     vector<StateStep> k1StepCntr, k2StepCntr, k3StepCntr, k4StepCntr;
+
+	StateStep temp;
+	Vector3d tempForce;
+	Vector3d tempAcc;
+
+	BallPlaneCollision(); // it will change initial velocity
+
+	for (int i = 0; i < BallNum(); i++)
+	{
+		curPosCntr.push_back(m_Balls[i].GetPosition());
+		curVelCntr.push_back(m_Balls[i].GetVelocity());
+	}
+
+
+	for (int i = 0; i < BallNum(); i++)
+	{
+
+		temp.deltaVel = curVelCntr[i];
+		temp.deltaPos = temp.deltaVel*g_cdDeltaT;
+
+		k1StepCntr.push_back(temp);
+
+		m_Balls[i].SetPosition(curPosCntr[i] + k1StepCntr[i].deltaPos*0.5);
+
+		m_Balls[i].SetForce(Vector3d::ZERO);
+	}
+
+	ComputeBallForce();
+	BallPlaneCollision();
+
+	for (int i = 0; i < BallNum(); i++)
+	{
+		tempForce = m_Balls[i].GetForce();
+		tempAcc = tempForce / m_Balls[i].GetMass();
+
+		temp.deltaVel = curVelCntr[i] + tempAcc*g_cdDeltaT*0.5;
+		temp.deltaPos = temp.deltaVel*g_cdDeltaT;
+
+		k2StepCntr.push_back(temp);
+
+
+		m_Balls[i].SetPosition(curPosCntr[i] + k2StepCntr[i].deltaPos*0.5);
+
+		m_Balls[i].SetForce(Vector3d::ZERO);
+	}
+
+	ComputeBallForce();
+	BallPlaneCollision();
+
+
+	for (int i = 0; i < BallNum(); i++)
+	{
+		tempForce = m_Balls[i].GetForce();
+		tempAcc = tempForce / m_Balls[i].GetMass();
+
+		temp.deltaVel = curVelCntr[i] + tempAcc*g_cdDeltaT*0.5;
+		temp.deltaPos = temp.deltaVel*g_cdDeltaT;
+
+		k3StepCntr.push_back(temp);
+
+		m_Balls[i].SetPosition(curPosCntr[i] + k3StepCntr[i].deltaPos);
+
+		m_Balls[i].SetForce(Vector3d::ZERO);
+	}
+
+	ComputeBallForce();
+	BallPlaneCollision();
+
+	for (int i = 0; i < BallNum(); i++)
+	{
+		tempForce = m_Balls[i].GetForce();
+		tempAcc = tempForce / m_Balls[i].GetMass();
+
+		temp.deltaVel = curVelCntr[i] + tempAcc*g_cdDeltaT;
+		temp.deltaPos = temp.deltaVel*g_cdDeltaT;
+
+		k4StepCntr.push_back(temp);
+
+		curPosCntr[i] = curPosCntr[i] + (k1StepCntr[i].deltaPos + 2 * k2StepCntr[i].deltaPos + 2 * k3StepCntr[i].deltaPos + k4StepCntr[i].deltaPos) / 6;
+
+		m_Balls[i].SetPosition(curPosCntr[i]);
+
+		m_Balls[i].SetForce(Vector3d::ZERO);
+	}
+
+	ComputeBallForce();
+	BallPlaneCollision();
+
+	for (int i = 0; i < BallNum(); i++)
+	{
+		tempForce = m_Balls[i].GetForce();
+		tempAcc = tempForce / m_Balls[i].GetMass();
+
+		curVelCntr[i] = curVelCntr[i] + tempAcc*g_cdDeltaT;
+
+		m_Balls[i].SetVelocity(curVelCntr[i]);
+
+		m_Balls[i].SetForce(Vector3d::ZERO);
+	}
 
 }
 
