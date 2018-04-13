@@ -620,7 +620,7 @@ void CMassSpringSystem::BallNetCollision()
 	{
 		for (int j = 0; j < BallNum(); j++)
 		{
-			if ((m_GoalNet.GetParticle(i).GetPosition() - m_Balls[j].GetPosition()).Length() <= m_Balls[j].GetRadius() + eEPSILON && m_GoalNet.GetParticle(i).IsMovable()) // net
+			if ((m_GoalNet.GetParticle(i).GetPosition() - m_Balls[j].GetPosition()).Length() < m_Balls[j].GetRadius() + eEPSILON && m_GoalNet.GetParticle(i).IsMovable()) // net
 			{
 				double cos1 = m_GoalNet.GetParticle(i).GetVelocity().DotProduct(m_Balls[j].GetPosition() - m_GoalNet.GetParticle(i).GetPosition())
 					/ (m_GoalNet.GetParticle(i).GetVelocity().Length()*(m_Balls[j].GetPosition() - m_GoalNet.GetParticle(i).GetPosition()).Length());
@@ -650,7 +650,7 @@ void CMassSpringSystem::BallNetCollision()
 					/ (m_GoalNet.GetParticle(i).GetMass() + m_Balls[j].GetMass())
 					+ v2t;
 
-
+				
 				if (cos1 > 0 && cos2 > 0)
 				{
 					m_GoalNet.GetParticle(i).SetVelocity(v1);
@@ -672,8 +672,12 @@ void CMassSpringSystem::BallNetCollision()
 						m_Balls[j].SetVelocity(v2);
 					}
 				}
+				
 
-
+				//m_GoalNet.GetParticle(i).SetVelocity(v1);
+				//m_Balls[j].SetVelocity(v2);
+				//cout << "Net" << v1 << endl;
+				//cout << "ball" << v2 << endl;
 			}
 
 			if ((m_GoalNet.GetParticle(i).GetPosition() - m_Balls[j].GetPosition()).Length() <= m_Balls[j].GetRadius() && !m_GoalNet.GetParticle(i).IsMovable()) // railing

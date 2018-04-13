@@ -356,7 +356,7 @@ void GoalNet::InitializeSpring()
 		}
 	}
 	*/
-
+	
 	for (int y = 0; y < GetHeightNum(); y++)
 	{
 		for (int z = 0; z < GetLengthNum(); z++)
@@ -372,7 +372,7 @@ void GoalNet::InitializeSpring()
 			}
 		}
 	}
-
+	
 	for (int y = 0; y < GetHeightNum(); y++)
 	{
 		for (int z = 0; z < GetLengthNum(); z++)
@@ -389,7 +389,7 @@ void GoalNet::InitializeSpring()
 		}
 	}
 
-
+	
 	for (int x = 0; x < GetWidthNum(); x++)
 	{
 		for (int y = 0; y < GetHeightNum(); y++)
@@ -399,13 +399,13 @@ void GoalNet::InitializeSpring()
 				addStructSpring(GetParticleID(x, y, 0), GetParticleID(x + 1, y, 0));
 			}
 
-			if ((y + 1) < GetHeightNum())
+			if ((y + 1) < GetHeightNum() && x != 0 && x != GetWidthNum() - 1)
 			{
 				addStructSpring(GetParticleID(x, y, 0), GetParticleID(x, y + 1, 0));
 			}
 		}
 	}
-
+	
 	for (int x = 0; x < GetWidthNum(); x++)
 	{
 		for (int y = 0; y < GetHeightNum(); y++)
@@ -415,29 +415,30 @@ void GoalNet::InitializeSpring()
 				addStructSpring(GetParticleID(x, y, GetLengthNum() - 1), GetParticleID(x + 1, y, GetLengthNum() - 1));
 			}
 
-			if ((y + 1) < GetHeightNum())
+			if ((y + 1) < GetHeightNum() && x != 0 && x != GetWidthNum() - 1)
 			{
 				addStructSpring(GetParticleID(x, y, GetLengthNum() - 1), GetParticleID(x, y + 1, GetLengthNum() - 1));
 			}
 		}
 	}
-
+	
+	
 	for (int x = 0; x < GetWidthNum(); x++)
 	{
 		for (int z = 0; z < GetLengthNum(); z++)
 		{
-			if ((z + 1) % 10 != 0)
+			if ((z + 1) % 10 != 0 && x != 0 && x != GetWidthNum() - 1)
 			{
 				addStructSpring(GetParticleID(x, 0, z), GetParticleID(x, 0, z + 1));
 			}
 
-			if ((x + 1) < GetWidthNum())
+			if ((x + 1) < GetWidthNum() && z != 0 && z != GetLengthNum() - 1)
 			{
 				addStructSpring(GetParticleID(x, 0, z), GetParticleID(x + 1, 0, z));
 			}
 		}
 	}
-
+	
 
 	
 	//addStructSpring(454, 455);
